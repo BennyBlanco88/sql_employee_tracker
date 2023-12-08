@@ -457,4 +457,68 @@ function viewEmployeesByManager() {
                 start();
             });
         }
+        // Function to DELETE Departments Roles Employees
+        function deleteDepartmentRolesEmployees() {
+            inquirer
+                .prompt({
+                    type: "list",
+                    name: "data",
+                    message: "What would you like to delete?",
+                    choices: ["Employee", "Role", "Department"],
+                })
+                .then((answer) => {
+                    switch (answer.data) {
+                        case "Employee":
+                            deleteDepartment();
+                            break;
+                        case "Role":
+                            deleteRole();
+                            break;
+                        case "Department":
+                            deleteDepartment();
+                            break;
+                        default:
+                            console.log(`Invalid data: ${answer.data}`);
+                            start();
+                            break;
+                    }
+                });
+        }
+        //Function to DELETE Employees
+        function deleteEmployee() {
+            const query = "SELECT * FROM employee";
+            connection.query(query, (err, res) => {
+                if (err) throw err;
+                const employeeList = res.map((employee) => ({
+                    name: `${employee.first_name} ${employee.last_name}`,
+                    value: employee.id,
+                }));
+                employeeList.push({ name: "Go Back", value: "back" }); //add a "back" option
+                inquirer
+                    .prompt({
+                        type: "list",
+                        name: "id",
+                        message: "Select the employee you want to delete:",
+                        choices: employeeList,
+                    })
+                    .then((answer) => {
+                        if (answer.id === "back") {
+                            //check if user selected "back"
+                            deleteDepartmentRolesEmployees();
+                            return;
+                        }
+                        const query = "DELETE FROM employee WHERE id = ?";
+                        connection.query(query, [answer.id], (err, res) => {
+                            if (err) throw err;
+                            console.log(
+                                `Deleted employee with ID ${answer.id} from the database!`
+                            );
+                            //restart the applocation
+                            start();
+                        });
+                    });
+            });
+        }
+
+        }
 }
