@@ -265,9 +265,131 @@ function addEmployee() {
 
                             console.log("Employee added successfully");
                             start();
-                        })
+                        });
                     })
+                    .catch((error) => {
+                        console.error(error);
+                    });
             }
-        )
-    })
+        );
+    });
+}
+//Function to add Manager
+function addManager() {
+    const queryDepartments = "SELECT * FROM departments";
+    const queryEmployees = "SELECT * FROM employee";
+
+    connection.query(queryDepartments, (err, resEmployees) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    type: "list",
+                    name: "department",
+                    message: "Select the department:",
+                    choices: resDepartments.map(
+                        (department) => department.department_name
+                    ),
+                },
+                {
+                    type: "list",
+                    name:"employee",
+                    message: resEmployees.map(
+                        (employee) =>
+                        `${employee.first_name} ${employee.last_name}`
+                    ),
+                },
+                {
+                    type: "list",
+                    name: "manager",
+                    message: "Select the employee's manager:",
+                    choices: resEmployees.map(
+                        (employee) =>
+                            `${employee.first_name} ${employee.last_name}`
+                    ),
+                },
+            ])
+            .then((answers) => {
+                const department = resDepartments.find(
+                  (department) =>
+                  department.department_name === answers.department  
+                );
+                const employee = resEmployees.find(
+                    (employee) =>
+                    `${employee.first_name} ${employee.last_name}` ===
+                    answers.employee
+                );
+                const manager = resEmployees.find(
+                    (employee) =>
+                    `${employee.first_name} ${employee.last_name}` ===
+                    answers.manager
+                );
+                const query =
+                "UPDATE employee SET manager_id = ? WHERE id = ? AND role_id IN (SELECT id FROM roles WHERE department_id = ?)";
+            connection.query(
+                query,
+                [manager.id, employee.id, department.id],
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(
+                        `Added manager ${manager.first_name} ${manager.last_name} to employee ${employee.first_name} ${employee.last_name} in department ${department.department_name}!`
+                    );
+                    // restart the application
+                    start();
+                }
+            );
+        });
+    });
+}
+
+//function to update an employee role
+function updateEmployeeRole() {
+    const queryEmployees = 
+        "SELECT employee.id, employee.first_name, employee.last_name, roles.title FROM employee LEFT JOIN role_id = roles.id";
+    const queryRoles = "SELECT * FROM roles";
+    connection.query(queryEmployees, (err, resEmployees) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+                {
+                    type: "list",
+                    name: "employee",
+                    message: "Select the employee to update:",
+                    choices: resEmployees.map(
+                        (employee) =>
+                            `${employee.first_name} ${employee.last_name}`
+                    ),
+                },
+                {
+                    type: "list",
+                    name: "role",
+                    message: "Select the new role:",
+                    choices: resRoles.map((role) => role.title),
+                },
+            ])
+            .then((answers) => {
+                const employee = resEmployees.find(
+                    (employee) =>
+                    `${employee.first_name} ${employee.last_name}` ===
+                    answers.employee
+                );
+                const role = resRoles.find(
+                    (role) => role.title === answers.role
+                );
+                const query =
+                "UPDATE employee SET role_id = ? WHERE id = ?";
+            connection.query(
+                query,
+                [role.id, employee.id],
+                (err, res) => {
+                    if (err) throw err;
+                    console.log(
+                        `Updated ${employee.first_name} ${employee.last_name}'s role to ${role.title} in the database!`
+                    );
+                    //restart the application
+                    start();
+                }
+            );
+        });
+    });
 }
