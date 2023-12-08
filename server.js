@@ -61,7 +61,7 @@ function start() {
                 case "Add an Employee":
                     addEmployee();
                     break;
-                case "Add a Manger":
+                case "Add a Manager":
                     addManager();
                     break;
                 case "Update an employee role":
@@ -86,4 +86,43 @@ function start() {
                 
             }
         });
+}
+
+// fuction to view all departments
+function viewAllDepartments() {
+    const query = "SELECT * FROM departments";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        // restart the application
+        start();
+    });
+}
+
+//function to view all roles
+function viewAllRoles() {
+    const query = "SELECT roles.title, roles.id, departments.department_name, roles.salary from roles join departments on roles.department_id = departments.id";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        // restart the applocation
+        start();
+    });
+}
+
+//fuction to view all employees
+function viewAllEmployees() {
+    const query = `
+    SELECT e.id, e.first_name, e.last_name, r.title, d.department_name, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager_name
+    FROM employee e
+    LEFT JOIN roles r ON e.role_id = r.id
+    LEFT JOIN departments d ON r.department_id = d.id
+    LEFT JOIN employee m ON e.manager_id = m.id;
+    `;
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        // restart the application
+        start();
+    });
 }
