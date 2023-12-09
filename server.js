@@ -630,17 +630,17 @@ function viewEmployeesByManager() {
                         //calculate the total salary for the selected department
                         const query = 
                             `SELECT
-                            department.department_name AS department,
+                            departments.department_name AS department,
                             SUM(roles.salary) AS total_salary
                           FROM
                             departments
-                            INNER JOIN roles ON department.id = roles.department_id
+                            INNER JOIN roles ON departments.id = roles.department_id
                             INNER JOIN employee ON roles.id = employee.role_id
                           Where
                             departments.id = ?
                           GROUP BY
                             departments.id; `;
-                        connection.query(query, [answer.deparmentId], (err, res) => {
+                        connection.query(query, [answer.departmentId], (err, res) => {
                             if (err) throw err;
                             const totalSalary = res[0].total_salary;
                             console.log(
