@@ -519,6 +519,137 @@ function viewEmployeesByManager() {
                     });
             });
         }
-
+        // Function to DELETE ROLE
+        function deleteRole() {
+            // retrieve all available roles from the database
+            const query = "SELECT * FROM roles";
+            connection.query(query, (err, res) => {
+                if (err) throw err;
+                //map through the retrieve roles to create an array of choices
+                const choices = res.map((role) => ({
+                    name: `${role.title} (${role.id}) - ${role.salary}`,
+                    value: role.id,
+                }));
+                // add a "Go Back" option to the list of choices
+                choices.push({ name: "Go Back", value: null });
+                inquirer
+                    .prompt({
+                        type: "list",
+                        name: "roleId",
+                        message: "Select the role you want to delete:",
+                        choices: choices,
+                    })
+                    .then((answer) => {
+                        // check if the uesr chose the "Go Back" option
+                        if (answer.roleId === null) {
+                            // go back to the deleteDepartmentRolesEmployees function
+                            deleteDepartmentRolesEmployees();
+                            return;
+                        }
+                        const query = "DELETE FROM roles WHERE id = ?";
+                        connection.query(query, [answer.roleId], (err, res) => {
+                            if (err) throw err;
+                            console.log(
+                                `Deleted role with ID ${answer.roleId} from the database!`
+                            );
+                            start();
+                        });
+                    });
+            });
         }
-}
+        //Fuction to DELETE Department
+        function deleteDepartment() {
+            //get the list of departments
+            const query = "SELECT * FROM departments";
+            connection.query(query, (err, res) => {
+                if (err) throw err;
+                const departmentChoices = res.map((department) => ({
+                    name: department.department_name,
+                    value: department.id,
+                }));
+
+                //prompt the user to select a department
+                inquirer
+                    .prompt({
+                        type: "list",
+                        name: "departmentId",
+                        message: "Which department do you want to delete?",
+                        choices: [
+                            ...departmentChoices,
+                            { name: "Go Back", value: "back" },
+                        ],
+                    })
+                    .then((answer) => {
+                        if (answer.deparmentId == "back") {
+                            // go back to the previous menu
+                            deleteDepartmentRolesEmployees();
+                        } else {
+                            const query = "DELETE FROM departments WHERE id = ?";
+                            connection.query(
+                                query,
+                                [answer.departmentId],
+                                (err, res) => {
+                                    if (err) throw err;
+                                    console.log(
+                                        `Deleted department with ID ${answer.departmentId} from the database!`
+                                    );
+                                    // restart the application
+                                    start();
+                                }
+                            );
+                        }
+                        
+                    });
+            });
+        }
+        // Fuction to view Total Utilized Budget of Department
+        function viewTotalUtilizedBudgetOfDepartment() {
+            const query = "SELECT * FROM departments";
+            connection.query(query, (err, res) => {
+                if (err) throw err;
+                const departmentChoices = res.map((department) => ({
+                    name: department.department_name,
+                    value: department.id,
+                }));
+
+                //prompt the user to select a department
+                inquirer
+                    .prompt({
+                        type: "list",
+                        name: "departmentId",
+                        message:
+                        "Which department do you want to calculate the total salary for?",
+                        choices: departmentChoices,
+                    })
+                    .then((answer) => {
+                        //calculate the total salary for the selected department
+                        const query = 
+                            `SELECT
+                            department.department_name AS department,
+                            SUM(roles.salary) AS total_salary
+                          FROM
+                            departments
+                            INNER JOIN roles ON department.id = roles.department_id
+                            INNER JOIN employee ON roles.id = employee.role_id
+                          Where
+                            departments.id = ?
+                          GROUP BY
+                            departments.id; `;
+                        connection.query(query, [answer.deparmentId], (err, res) => {
+                            if (err) throw err;
+                            const totalSalary = res[0].total_salary;
+                            console.log(
+                                `The total salary for employees in this department is $${totalSalary}`
+                            );
+                            //restart the application
+                            start();
+                        });
+                    });
+            });
+        }
+        
+        // close the connection when the application exits
+        process.on("exit", () => {
+            connection.end();
+        });
+        
