@@ -1,13 +1,13 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
-const cfonts = require('cfonts');
+
 
 // create MYSQL connection
 const connection = mysql.createConnection({
     host: "localhost",
     port: 3306,
     user: "root",
-    password: "",
+    password: "Taco7193!@",
     database:"employeeTracker_db",
 });
 
@@ -35,7 +35,7 @@ function start() {
                 "Update an employee role",
                 "View Employee by Manager",
                 "View Employees by Department",
-                "Delete deparments | Roles | Employees",
+                "Delete Departments | Roles | Employees",
                 "View the total utilized budget of a department",
                 "Exit",
 
@@ -43,7 +43,7 @@ function start() {
         })
         .then((answer) => {
             switch (answer.action) {
-                case "View all department":
+                case "View all departments":
                     viewAllDepartments();
                     break;
                 case "View all roles":
