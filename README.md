@@ -36,6 +36,7 @@ This application leverages Node.js (v16.19.1), JavaScript, and SQL to operate. I
 
 https://github.com/BennyBlanco88/sql_employee_tracker
 
+https://drive.google.com/file/d/1mZRmeZM-rURdxlCM-LtiyeM-1DFuyaB3/view
 
 ```
 
