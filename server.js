@@ -281,9 +281,11 @@ function addManager() {
     const queryDepartments = "SELECT * FROM departments";
     const queryEmployees = "SELECT * FROM employee";
 
-    connection.query(queryDepartments, (err, resEmployees) => {
+    connection.query(queryDepartments, (err, resDepartments) => {
         if (err) throw err;
-        inquirer
+        connection.query(queryEmployees, (err, resEmployees) => {
+            if (err) throw err;
+            inquirer
             .prompt([
                 {
                     type: "list",
@@ -296,7 +298,8 @@ function addManager() {
                 {
                     type: "list",
                     name:"employee",
-                    message: resEmployees.map(
+                    message: "Select the employee to add a manager to:",
+                    choices: resEmployees.map(
                         (employee) =>
                         `${employee.first_name} ${employee.last_name}`
                     ),
@@ -340,6 +343,7 @@ function addManager() {
                     start();
                 }
             );
+        });
         });
     });
 }
