@@ -60,7 +60,7 @@ function start() {
                 case "Add a role":
                     addRole();
                     break;
-                case "Add an Employee":
+                case "Add an employee":
                     addEmployee();
                     break;
                 case "Add a Manager":
@@ -347,11 +347,13 @@ function addManager() {
 //function to update an employee role
 function updateEmployeeRole() {
     const queryEmployees = 
-        "SELECT employee.id, employee.first_name, employee.last_name, roles.title FROM employee LEFT JOIN role_id = roles.id";
+        "SELECT employee.id, employee.first_name, employee.last_name, roles.title FROM employee LEFT JOIN roles ON employee.role_id = roles.id";
     const queryRoles = "SELECT * FROM roles";
     connection.query(queryEmployees, (err, resEmployees) => {
         if (err) throw err;
-        inquirer
+        connection.query(queryRoles, (err, resRoles) => {
+            if (err) throw err;
+            inquirer
             .prompt([
                 {
                     type: "list",
@@ -393,6 +395,7 @@ function updateEmployeeRole() {
                 }
             );
         });
+    });
     });
 }
 
@@ -460,7 +463,7 @@ function viewEmployeesByManager() {
             });
         }
         // Function to DELETE Departments Roles Employees
-        function deleteDepartmentRolesEmployees() {
+        function deleteDepartmentsRolesEmployees() {
             inquirer
                 .prompt({
                     type: "list",
@@ -471,7 +474,7 @@ function viewEmployeesByManager() {
                 .then((answer) => {
                     switch (answer.data) {
                         case "Employee":
-                            deleteDepartment();
+                            deleteEmployee();
                             break;
                         case "Role":
                             deleteRole();
